@@ -1,0 +1,13 @@
+# Secrets: e-Stat app ID
+.env
+
+.venv/
+__pycache__/
+*.part
+
+# Large or re-downloadable raw files (rebuilt by the fetch scripts)
+data/raw/un/
+data/raw/boj/co_metadata.json
+
+.omc/
+.DS_Store
