@@ -1,8 +1,31 @@
 # Japan data sources and access requirements
 
-Checked on 2026-11-07. ✅ = confirmed against the official page, code or API. ⚠️ = not confirmed this session.
+Checked on 2026-11-07; the "Still needed" section on 2026-11-24. ✅ = confirmed against the official page, code or API. ⚠️ = not confirmed this session.
+
+## Still needed: Group 2 (Jobs)
+
+The group agenda (`misc/Agenda Idea.pdf`) and the source sign-up sheet (`misc/Work log.pdf`) split the project into three analysis groups. Brian is in Group 2 and covers the Japan rows of analyses #4, #4b and #5. The table IDs below are e-Stat `statsDataId`s for `getStatsData`, checked with `getMetaInfo` ✅.
+
+| Analysis | Missing | Source | Notes |
+|---|---|---|---|
+| #4 Who got the new jobs (2015–2025, by age and sector) | Employment by age and sector | 労働力調査 table `0003007108` 年齢階級，産業別就業者数: industry (major divisions and below, 99 items) × sex × 16 age groups including 15–64, annual 2007–2025 ✅ | 2015–2025 all uses the old (13th) industry classification. The 2024 classification starts with January 2026 data, so don't append 2026 without bridging. The ESRI employment figures have no age split |
+| #4b Who isn't working (today, by age and sex) | Employment rates by age and sex | 労働力調査 table `0002060049`: participation, employment and unemployment rates by sex × 30 age groups, annual 1953–2025 ✅ | For Japan detail. Cross-country charts use the ILO modelled estimates, a shared source with no owner yet. Group 3 needs #4b for #3b and #7, so do it first |
+| #5 Mismatch: crowded side | Jobseeker counts by occupation | The Hello Work files already in `data/raw/estat/` have a 有効求職（パート含む常用） sheet (table 21-4) ✅ | Add it to `SHEETS` in `fetch_estat_hellowork.py`. The ratio already shows the crowded occupations (below 1) |
+| #5 Unemployment vs openings over time | Unemployment rate, monthly | 労働力調査 table `0002060004`: the same rates as `0002060049`, monthly from January 1968 to September 2026 ✅ | |
+| #5 Unemployment vs openings over time | National openings-to-applicants ratio, long series | Hello Work long-run tables in the same e-Stat file catalogue (`00450222`), or the JIL ready-made national ratios ⚠️ | The occupation tables only start in 2013 |
+
+Already collected for #5: openings per applicant and new openings by occupation (Hello Work, 2013–2025), and the Tankan employment conditions DI by industry (1974–2026).
+
+Skip the work log's CEIC row: CEIC is a paid database, and the same occupation ratios come free from the official Hello Work files. The JIL prefecture ratios are optional and only useful for local examples.
+
+Japan rows that belong to other groups and had no owner on 2026-11-24:
+- Vital Statistics births and marriages by mother's age (Group 1, #8)
+- Report on Internal Migration (Group 1, #12)
+- The pension valuation and the Children's Future Strategy documents (Group 3, #6 and #13)
 
 ## Recommendation: extract broadly now, choose sector and period later
+
+Written for the Nov 13 meeting. The group agenda now sets a period for each analysis (for example 1995–2025 for #3a and 2015–2025 for #4), so read the window and sector proposal below as background.
 
 Extracting more sectors or years costs almost nothing, and these tables are small. What constrains the choice is **series breaks**, not volume. So:
 
@@ -30,7 +53,7 @@ Extracting more sectors or years costs almost nothing, and these tables are smal
 
 **Citation (e-Stat and other government data):** the terms follow the government standard terms of use v2.0 and are CC BY 4.0-compatible ✅. Cite as `出典：政府統計の総合窓口(e-Stat)（https://www.e-stat.go.jp/）`, and say when you've edited or processed the figures ✅.
 
-**The only blocker before scripting:** register an e-Stat account and create an appId. It's free and self-service.
+**e-Stat appId:** registered and stored in `.env` as `ESTAT_APP_ID` (gitignored).
 
 ## Sources by indicator
 
@@ -38,9 +61,9 @@ Extracting more sectors or years costs almost nothing, and these tables are smal
 |---|---|---|---|
 | Working-age population | 人口推計 Population Estimates (`00200524`) ✅ | monthly / annual (Oct 1) | 国勢調査 Census (`00200521`) ✅ for 5-yearly benchmarks |
 | Births and deaths | 人口動態調査 Vital Statistics (`00450011`) ✅ | monthly / annual | |
-| Unemployment | 労働力調査 Labour Force Survey (`00200531`) ✅ | monthly | |
-| Employment by sector | 労働力調査 (`00200531`) ✅; 就業構造基本調査 Employment Status Survey (`00200532`) ✅ | monthly; every 5 years | Labour Force Survey switched to the 2024 classification from January 2026 data ✅ |
-| Job openings by sector | 一般職業紹介状況 Employment Referrals (`00450222`) ✅ | monthly | **Not in the e-Stat database**: Excel files only, found through the `getDataCatalog` API ✅. The occupation tables (long-run table 21) give openings and openings-per-applicant from 2013. The occupation classification changed between 2022 and 2023 ✅. Industry tables (long-run table 20) start April 2024 on the new industry classification. **Hello Work (public employment office) listings only** |
+| Unemployment | 労働力調査 Labour Force Survey (`00200531`) ✅ | monthly | By sex and age: table `0002060004` (monthly, from 1968) and `0002060049` (annual, from 1953) ✅. The LFS Excel tables stopped with the October 2025 release, so use the e-Stat API |
+| Employment by sector | 労働力調査 (`00200531`) ✅; 就業構造基本調査 Employment Status Survey (`00200532`) ✅ | monthly; every 5 years | Labour Force Survey switched to the 2024 classification from January 2026 data ✅. By age, sex and industry: table `0003007108` (annual, 2007–2025) ✅ |
+| Job openings by sector | 一般職業紹介状況 Employment Referrals (`00450222`) ✅ | monthly | **Not in the e-Stat database**: Excel files only, found through the `getDataCatalog` API ✅. The occupation tables (long-run table 21) give openings and openings-per-applicant from 2013, with jobseeker and placement sheets in the same files ✅. The occupation classification changed between 2022 and 2023 ✅. Industry tables (long-run table 20) start April 2024 on the new industry classification. **Hello Work (public employment office) listings only** |
 | Unfilled vacancies by sector | 雇用動向調査 Employment Trend Survey (`00450073`) ✅ | semi-annual | 未充足求人数 tables ✅ |
 | Labour shortage by sector | 労働経済動向調査 (`00450072`) ✅; **BOJ Tankan 雇用人員判断DI** (employment conditions DI) by industry ✅ | quarterly | Tankan: share of firms reporting "excessive" staff minus share reporting "insufficient" ✅ |
 | Economic growth by sector | 国民経済計算 National Accounts, ESRI (`00100409`) ✅: 経済活動別国内総生産, real / nominal / deflator ✅ | annual (calendar year) | Excel from esri.cao.go.jp ✅. Start year is in the files ⚠️ |
